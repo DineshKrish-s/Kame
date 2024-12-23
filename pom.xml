@@ -45,7 +45,6 @@
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
       <version>${testng.version}</version>
-      <scope>test</scope>
     </dependency>
 
     <!-- Cucumber -->
@@ -84,7 +83,7 @@
       <version>2.15.0</version>
     </dependency>
 
-    <!-- Database Utils.CommonUtils -->
+    <!-- Database utils.CommonUtils -->
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
@@ -132,6 +131,14 @@
       <artifactId>commons-io</artifactId>
       <version>2.11.0</version>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/faker/faker -->
+    <dependency>
+      <groupId>com.github.javafaker</groupId>
+      <artifactId>javafaker</artifactId>
+      <version>1.0.2</version>
+    </dependency>
+
   </dependencies>
 
   <build>

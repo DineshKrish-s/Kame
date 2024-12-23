@@ -1,0 +1,5 @@
+{
+  "url": "https://example.com",
+  "browser": "chrome",
+  "timeout": 20
+}
