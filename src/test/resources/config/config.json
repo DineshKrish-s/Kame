@@ -1,5 +1,28 @@
 {
-  "url": "https://example.com",
-  "browser": "chrome",
-  "timeout": 20
+  "environments": {
+    "dev": {
+      "url": "https://dev.example.com",
+      "db": {
+        "connectionString":"",
+        "userName":"",
+        "password":""
+      }
+    },
+    "qa": {
+      "url": "https://qa.example.com",
+      "db": {
+        "connectionString":"",
+        "userName":"",
+        "password":""
+      }
+    },
+    "prod": {
+      "url": "https://www.jotform.com",
+      "db": {
+        "connectionString":"",
+        "userName":"",
+        "password":""
+      }
+    }
+  }
 }

@@ -8,15 +8,15 @@ import org.testng.annotations.BeforeClass;
 public class BaseTest {
     protected WebDriver driver;
 
-    @BeforeClass
-    public void setUp() {
-        driver = DriverManager.getDriver();
-    }
-
-    @AfterClass
-    public void tearDown() {
-        if (driver != null) {
-            driver.quit();
-        }
-    }
+//    @BeforeClass
+//    public void setUp() {
+//        driver = DriverManager.getDriver();
+//    }
+//
+//    @AfterClass
+//    public void tearDown() {
+//        if (driver != null) {
+//            driver.quit();
+//        }
+//    }
 }

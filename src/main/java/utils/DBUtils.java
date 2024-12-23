@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DBUtils {
+
     public static Connection getConnection(String dbUrl, String username, String password) throws SQLException {
         return DriverManager.getConnection(dbUrl, username, password);
     }

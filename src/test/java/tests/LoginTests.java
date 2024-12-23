@@ -1,17 +1,23 @@
 package tests;
 
 import base.BaseTest;
-import managers.PageObjectManager;
+import dataProviders.TestData;
 import org.testng.annotations.Test;
 import dataProviders.TestDataProvider;
+import annotations.TestDataSource;
 
 public class LoginTests extends BaseTest {
-    private PageObjectManager pageObjectManager;
 
-    @Test(dataProvider = "loginData", dataProviderClass = TestDataProvider.class)
-    public void testValidLogin(String username, String password) {
-        pageObjectManager = new PageObjectManager(driver);
-        pageObjectManager.getLoginPage().login(username, password);
-        // Add assertions to verify login success
+    static final String excelName = "testdata.xlsx";
+    static final String sheetName = "LoginData";
+
+    @Test(dataProvider = "excelDataProvider", dataProviderClass = TestDataProvider.class)
+    @TestDataSource(fileName = excelName, sheetName = sheetName)
+    public void testLogin(TestData testData) {
+        System.out.println("Testing login with:");
+        System.out.println("Username: " + testData.getValue("Username"));
+        System.out.println("Password: " + testData.getValue("Password"));
+        System.out.println("Expected Result: " + testData.getValue("ExpectedResult"));
     }
+
 }
