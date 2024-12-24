@@ -15,7 +15,7 @@ public class WaitUtils extends TestBase {
     private static WebDriverWait wait;
 
     public WaitUtils() {
-        wait = new WebDriverWait(getDriver(), Duration.ofSeconds(20));
+        wait = new WebDriverWait(getDriver(), Duration.ofSeconds(30));
     }
 
     public static void implicitWait(int sec){

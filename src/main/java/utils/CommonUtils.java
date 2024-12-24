@@ -12,6 +12,8 @@ import java.util.List;
 
 public class CommonUtils extends TestBase {
 
+    CommonUtils(){}
+
     public String getFirstName() {
         Faker faker = new Faker();
         return faker.name().firstName();
@@ -72,6 +74,10 @@ public class CommonUtils extends TestBase {
         return getDriver().findElements(element);
     }
 
+    public static void getUrl(String url){
+        getDriver().get(url);
+    }
+
     public static void clickElement(WebElement element){
         WaitUtils.waitForClickability(element);
         element.click();
@@ -83,14 +89,14 @@ public class CommonUtils extends TestBase {
     }
 
     public static void clickElement(By element){
+        WaitUtils.waitForClickability(element);
         WebElement elem = findElement(element);
-        WaitUtils.waitForClickability(elem);
         elem.click();
     }
 
     public static void clickElement(By element, String message){
+        WaitUtils.waitForClickability(element);
         WebElement elem = findElement(element);
-        WaitUtils.waitForVisibility(elem);
         elem.click();
     }
 
@@ -105,14 +111,14 @@ public class CommonUtils extends TestBase {
     }
 
     public static String getText(By element){
+        WaitUtils.waitForClickability(element);
         WebElement elem = findElement(element);
-        WaitUtils.waitForVisibility(elem);
         return elem.getText();
     }
 
     public static String getText(By element, String message){
+        WaitUtils.waitForClickability(element);
         WebElement elem = findElement(element);
-        WaitUtils.waitForVisibility(elem);
         return elem.getText();
     }
 
@@ -122,19 +128,19 @@ public class CommonUtils extends TestBase {
     }
 
     public static void inputText(WebElement element, String text, String message){
-        WaitUtils.waitForVisibility(element);
+        WaitUtils.waitForClickability(element);
         element.sendKeys(text);
     }
 
     public static void inputText(By element, String text){
+        WaitUtils.waitForClickability(element);
         WebElement elem = findElement(element);
-        WaitUtils.waitForVisibility(elem);
         elem.sendKeys(text);
     }
 
     public static void inputText(By element, String text,String message){
+        WaitUtils.waitForClickability(element);
         WebElement elem = findElement(element);
-        WaitUtils.waitForVisibility(elem);
         elem.sendKeys(text);
     }
 
@@ -329,6 +335,5 @@ public class CommonUtils extends TestBase {
     public static boolean isElementSelected(By element){
         return findElement(element).isSelected();
     }
-
 
 }
