@@ -8,6 +8,6 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Retention(RetentionPolicy.RUNTIME) // Make it accessible at runtime
 public @interface TestDataSource {
-    String fileName();  // Excel file name
-    String sheetName(); // Sheet name
+    String[] fileName(); // Array of file names
+    String[] sheetName(); // Array of corresponding sheet names
 }
