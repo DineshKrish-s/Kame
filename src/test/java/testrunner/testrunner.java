@@ -2,6 +2,7 @@ package testrunner;
 
 import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
+import org.testng.annotations.DataProvider;
 
 @CucumberOptions(
         features = "classpath:features/test.feature",
@@ -16,5 +17,10 @@ import io.cucumber.testng.CucumberOptions;
         } // Reporting
 )
 public class testrunner extends AbstractTestNGCucumberTests {
-    // No additional code needed
+
+        @Override
+        @DataProvider(parallel = false)
+        public Object[][] scenarios() {
+                return super.scenarios();
+        }
 }
