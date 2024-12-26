@@ -12,6 +12,9 @@ public class TestDataProvider {
 
     @DataProvider(name = "excelDataProvider")
     public static Object[][] excelDataProvider(Method method) throws IOException {
+        // Check if parallel execution is enabled via system property
+        boolean isParallel = Boolean.parseBoolean(System.getProperty("enableParallelDataProvider", "false"));
+
         if (method.isAnnotationPresent(TestDataSource.class)) {
             TestDataSource dataSource = method.getAnnotation(TestDataSource.class);
 
@@ -20,10 +23,13 @@ public class TestDataProvider {
 
             List<TestData> dataList = FileIO.readExcelAsDynamicObject(filePath, sheetName);
 
-            // Convert List<DynamicTestData> to Object[][]
-            return dataList.stream().map(data -> new Object[]{data}).toArray(Object[][]::new);
+            // Convert List<TestData> to Object[][]
+            return dataList.stream()
+                    .map(data -> new Object[]{data})
+                    .toArray(Object[][]::new);
         } else {
             throw new RuntimeException("Test method is missing @TestDataSource annotation");
         }
     }
+
 }

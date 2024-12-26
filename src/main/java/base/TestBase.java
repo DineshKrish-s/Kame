@@ -39,9 +39,9 @@ public class TestBase {
         if (threadLocalDriver.get() == null) {
             try {
 
-                String browser = System.getProperty("browser", config.getProperty("browser"));
-                String gridUrl = System.getProperty("grid.url", "");
-                String gridIndicator = System.getProperty("grid.url", "");
+                String browser = System.getProperty("browser", config.getProperty("browser", "chrome"));
+                String gridUrl = System.getProperty("grid.url", config.getProperty("grid.url", ""));
+                String gridIndicator = System.getProperty("grid.indicator", config.getProperty("grid.indicator", "false"));
 
                 WebDriver driver;
 
