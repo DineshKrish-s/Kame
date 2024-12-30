@@ -8,6 +8,8 @@ import org.hamcrest.Matchers;
 
 public class APIUtils {
 
+    static CustomLogger logger = new CustomLogger(APIUtils.class);
+
     /**
      * Validates the status code of an API response using predefined constants.
      *
@@ -21,7 +23,7 @@ public class APIUtils {
         Response response = request.get(endpoint);
 
         response.then().statusCode(expectedStatusCode);
-        System.out.println("Status Code Validation Passed: " + response.getStatusCode());
+        logger.infoWithoutReport("Status Code Validation Passed: " + response.getStatusCode());
 
         return response;
     }
@@ -37,7 +39,7 @@ public class APIUtils {
         Response response = request.get(endpoint);
 
         response.then().time(Matchers.lessThan(APIConstants.MAX_RESPONSE_TIME_MS));
-        System.out.println("Response Time Validation Passed: " + response.time() + " ms");
+        logger.infoWithoutReport("Response Time Validation Passed: " + response.time() + " ms");
     }
 
     /**
@@ -53,7 +55,7 @@ public class APIUtils {
         Response response = request.get(endpoint);
 
         response.then().body(jsonPath, Matchers.equalTo(expectedValue));
-        System.out.println("Response Body Field Validation Passed: " + jsonPath + " = " + expectedValue);
+        logger.infoWithoutReport("Response Body Field Validation Passed: " + jsonPath + " = " + expectedValue);
     }
 
     /**
@@ -67,7 +69,7 @@ public class APIUtils {
         Response response = request.get(endpoint);
 
         response.then().contentType(APIConstants.CONTENT_TYPE_JSON);
-        System.out.println("Content Type Validation Passed: " + response.contentType());
+        logger.infoWithoutReport("Content Type Validation Passed: " + response.contentType());
     }
 
     /**

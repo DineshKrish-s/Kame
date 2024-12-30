@@ -5,6 +5,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.ITestContext;
+import utils.CustomLogger;
 
 import java.net.URL;
 import java.util.Properties;
@@ -14,11 +15,13 @@ public class TestBase {
     private static Properties config;
     private static ThreadLocal<WebDriver> threadLocalDriver = new ThreadLocal<>();
 
+    static CustomLogger logger = new CustomLogger(TestBase.class);
+    
     // Load configuration
     static {
         try {
             config = new Properties();
-            System.out.println("Attempting to load 'config/config.properties'...");
+            logger.infoWithoutReport("Attempting to load 'config/config.properties'...");
 
             // Specify the correct path to the properties file within test/resources/config
             var resource = Thread.currentThread().getContextClassLoader().getResource("config/config.properties");
@@ -26,9 +29,9 @@ public class TestBase {
                 throw new RuntimeException("'config/config.properties' not found in classpath.");
             }
 
-            System.out.println("Found config.properties at: " + resource);
+            logger.infoWithoutReport("Found config.properties at: " + resource);
             config.load(resource.openStream());
-            System.out.println("Configuration file loaded successfully.");
+            logger.infoWithoutReport("Configuration file loaded successfully.");
         } catch (Exception e) {
             throw new RuntimeException("Failed to load configuration file. Ensure 'config/config.properties' is in src/test/resources/config.", e);
         }
@@ -50,7 +53,7 @@ public class TestBase {
                     capabilities.setBrowserName(browser);
                     driver = new RemoteWebDriver(new URL(gridUrl), capabilities);
                 } else {
-                    System.out.println("Grid is disabled or Grid URL is not defined. Falling back to local WebDriver.");
+                    logger.infoWithoutReport("Grid is disabled or Grid URL is not defined. Falling back to local WebDriver.");
                     driver = createLocalDriver(browser);
                 }
 
@@ -60,7 +63,7 @@ public class TestBase {
                     context.setAttribute("WebDriver", driver);
                 }
 
-                System.out.println("WebDriver initialized for: " + (context != null ? context.getName() : "Cucumber scenario"));
+                logger.infoWithoutReport("WebDriver initialized for: " + (context != null ? context.getName() : "Cucumber scenario"));
 
             } catch (Exception e) {
                 throw new RuntimeException("Failed to initialize WebDriver.", e);
@@ -81,7 +84,7 @@ public class TestBase {
 
     // Helper to create ChromeDriver with options
     private static WebDriver createChromeDriver() {
-        System.out.println("Initializing ChromeDriver...");
+        logger.infoWithoutReport("Initializing ChromeDriver...");
 
         // Chrome Options
         ChromeOptions chromeOptions = new ChromeOptions();
@@ -101,7 +104,7 @@ public class TestBase {
 
     // Helper to create FirefoxDriver with options
     private static WebDriver createFirefoxDriver() {
-        System.out.println("Initializing FirefoxDriver...");
+        logger.infoWithoutReport("Initializing FirefoxDriver...");
 
         // Firefox Options
         org.openqa.selenium.firefox.FirefoxOptions firefoxOptions = new org.openqa.selenium.firefox.FirefoxOptions();
@@ -136,7 +139,7 @@ public class TestBase {
             if (context != null) {
                 context.removeAttribute("WebDriver");
             }
-            System.out.println("WebDriver cleaned up for: " + (context != null ? context.getName() : "Cucumber scenario"));
+            logger.infoWithoutReport("WebDriver cleaned up for: " + (context != null ? context.getName() : "Cucumber scenario"));
         }
     }
 
@@ -159,7 +162,7 @@ public class TestBase {
 //                threadLocalDriver.set(driver);
 //                context.setAttribute("WebDriver", driver);
 //
-//                System.out.println("WebDriver initialized for: " + context.getName());
+//                logger.infoWithoutReport("WebDriver initialized for: " + context.getName());
 //            } catch (Exception e) {
 //                throw new RuntimeException("Failed to initialize WebDriver.", e);
 //            }
@@ -175,7 +178,7 @@ public class TestBase {
 //                return new RemoteWebDriver(new URL(gridUrl), capabilities);
 //            } catch (Exception e) {
 //                attempt++;
-//                System.out.println("Retrying WebDriver initialization (attempt " + attempt + ")");
+//                logger.infoWithoutReport("Retrying WebDriver initialization (attempt " + attempt + ")");
 //                if (attempt == maxRetries) {
 //                    throw new RuntimeException("Failed to connect to Selenium Grid after " + maxRetries + " attempts.", e);
 //                }
@@ -194,7 +197,7 @@ public class TestBase {
 //            driver.quit();
 //            threadLocalDriver.remove();
 //            context.removeAttribute("WebDriver");
-//            System.out.println("WebDriver cleaned up for: " + context.getName());
+//            logger.infoWithoutReport("WebDriver cleaned up for: " + context.getName());
 //        }
 //    }
 }

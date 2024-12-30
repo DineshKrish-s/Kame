@@ -7,9 +7,12 @@ import dataProviders.TestDataProvider;
 import annotations.TestDataSource;
 import pages.LoginPage;
 import utils.CommonUtils;
+import utils.CustomLogger;
 
 public class LoginTests extends BaseTest {
 
+    CustomLogger logger = new CustomLogger(LoginTests.class);
+    
     static final String excelName_1 = "testdata.xlsx";
     static final String sheetName_1 = "LoginData";
 
@@ -22,10 +25,10 @@ public class LoginTests extends BaseTest {
         CommonUtils.getUrl(testData.getValue("url"));
         LoginPage loginPage = new LoginPage();
         loginPage.login("dinesh","dinesh");
-        System.out.println("Testing login with:");
-        System.out.println("Username: " + testData.getValue("Username"));
-        System.out.println("Password: " + testData.getValue("Password"));
-        System.out.println("Expected Result: " + testData.getValue("ExpectedResult"));
+        logger.infoWithReport("Testing login with:");
+        logger.infoWithReport("Username: " + testData.getValue("Username"));
+        logger.infoWithReport("Password: " + testData.getValue("Password"));
+        logger.infoWithReport("Expected Result: " + testData.getValue("ExpectedResult"));
     }
 
     @Test(dataProvider = "singleExcelDataProvider", dataProviderClass = TestDataProvider.class, enabled = true)
@@ -34,9 +37,9 @@ public class LoginTests extends BaseTest {
         CommonUtils.getUrl(testData.getValue("url"));
         LoginPage loginPage = new LoginPage();
         loginPage.login("dinesh","dinesh");
-        System.out.println("Testing login with:");
-        System.out.println("Username: " + testData.getValue("Username"));
-        System.out.println("Password: " + testData.getValue("Password"));
-        System.out.println("Expected Result: " + testData.getValue("ExpectedResult"));
+        logger.infoWithReport("Testing login with:");
+        logger.infoWithReport("Username: " + testData.getValue("Username"));
+        logger.infoWithReport("Password: " + testData.getValue("Password"));
+        logger.infoWithReport("Expected Result: " + testData.getValue("ExpectedResult"));
     }
 }

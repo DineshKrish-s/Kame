@@ -12,6 +12,10 @@ import java.util.List;
 
 public class CommonUtils extends TestBase {
 
+    static CustomLogger logger = new CustomLogger(CommonUtils.class);
+
+    static final String scrollView = "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});";
+
     CommonUtils(){}
 
     public String getFirstName() {
@@ -81,67 +85,77 @@ public class CommonUtils extends TestBase {
     public static void clickElement(WebElement element){
         WaitUtils.waitForClickability(element);
         element.click();
+        logger.infoWithoutReport(element + " is clicked");
     }
 
     public static void clickElement(WebElement element, String message){
         WaitUtils.waitForClickability(element);
         element.click();
+        logger.infoWithoutReport(message + " is clicked");
     }
 
     public static void clickElement(By element){
         WaitUtils.waitForClickability(element);
-        WebElement elem = findElement(element);
-        elem.click();
+        findElement(element).click();
+        logger.infoWithoutReport(element + " is clicked");
     }
 
     public static void clickElement(By element, String message){
         WaitUtils.waitForClickability(element);
-        WebElement elem = findElement(element);
-        elem.click();
+        findElement(element).click();
+        logger.infoWithoutReport(message + " is clicked");
     }
 
     public static String getText(WebElement element){
         WaitUtils.waitForVisibility(element);
-        return element.getText();
+        String text = element.getText();
+        logger.infoWithoutReport(text + " is text from " + element);
+        return text;
     }
 
     public static String getText(WebElement element, String message){
         WaitUtils.waitForVisibility(element);
-        return element.getText();
+        String text = element.getText();
+        logger.infoWithoutReport(text + " is text from " + message);
+        return text;
     }
 
     public static String getText(By element){
-        WaitUtils.waitForClickability(element);
-        WebElement elem = findElement(element);
-        return elem.getText();
+        WaitUtils.waitForVisibility(element);
+        String text = findElement(element).getText();
+        logger.infoWithoutReport(text + " is text from " + element);
+        return text;
     }
 
     public static String getText(By element, String message){
-        WaitUtils.waitForClickability(element);
-        WebElement elem = findElement(element);
-        return elem.getText();
+        WaitUtils.waitForVisibility(element);
+        String text = findElement(element).getText();
+        logger.infoWithoutReport(text + " is text from " + message);
+        return text;
     }
 
     public static void inputText(WebElement element, String text){
         WaitUtils.waitForClickability(element);
         element.sendKeys(text);
+        logger.infoWithoutReport(text + " is text entered in " + element);
     }
 
     public static void inputText(WebElement element, String text, String message){
         WaitUtils.waitForClickability(element);
         element.sendKeys(text);
+        logger.infoWithoutReport(text + " is text entered in " + message);
     }
 
     public static void inputText(By element, String text){
         WaitUtils.waitForClickability(element);
-        WebElement elem = findElement(element);
-        elem.sendKeys(text);
+        findElement(element).sendKeys(text);
+        logger.infoWithoutReport(text + " is text entered in " + element);
     }
 
-    public static void inputText(By element, String text,String message){
+    public static void inputText(By element, String text, String message){
         WaitUtils.waitForClickability(element);
-        WebElement elem = findElement(element);
-        elem.sendKeys(text);
+        findElement(element).sendKeys(text);
+        logger.infoWithoutReport(text + " is text entered in " + message);
     }
 
     /**
@@ -157,6 +171,7 @@ public class CommonUtils extends TestBase {
             inputText(element, String.valueOf(c));
             WaitUtils.implicitWait(delaySec);
         }
+        logger.infoWithoutReport(text + " is text entered in " + element);
     }
 
     public static void inputTextSlowly(By element, String text, int delaySec) throws InterruptedException {
@@ -164,20 +179,23 @@ public class CommonUtils extends TestBase {
             inputText(element, String.valueOf(c));
             WaitUtils.implicitWait(delaySec);
         }
+        logger.infoWithoutReport(text + " is text entered in " + element);
     }
 
-    public static void inputTextSlowly(WebElement element, String text, int delaySec, String messasge) throws InterruptedException {
+    public static void inputTextSlowly(WebElement element, String text, int delaySec, String message) throws InterruptedException {
         for (char c : text.toCharArray()) {
             inputText(element, String.valueOf(c));
             WaitUtils.implicitWait(delaySec);
         }
+        logger.infoWithoutReport(text + " is text entered in " + message);
     }
 
-    public static void inputTextSlowly(By element, String text, int delaySec, String messasge) throws InterruptedException {
+    public static void inputTextSlowly(By element, String text, int delaySec, String message) throws InterruptedException {
         for (char c : text.toCharArray()) {
             inputText(element, String.valueOf(c));
             WaitUtils.implicitWait(delaySec);
         }
+        logger.infoWithoutReport(text + " is text entered in " + message);
     }
 
     /**
@@ -189,6 +207,7 @@ public class CommonUtils extends TestBase {
     public static void scrollByPixel(int x, int y) {
         JavascriptExecutor jsExecutor = (JavascriptExecutor) getDriver();
         jsExecutor.executeScript("window.scrollBy(arguments[0], arguments[1]);", x, y);
+        logger.infoWithoutReport("Scrolled into " + x +", " + y);
     }
 
     /**
@@ -200,6 +219,7 @@ public class CommonUtils extends TestBase {
     public static void scrollToPosition(int x, int y) {
         JavascriptExecutor jsExecutor = (JavascriptExecutor) getDriver();
         jsExecutor.executeScript("window.scrollTo(arguments[0], arguments[1]);", x, y);
+        logger.infoWithoutReport("Scrolled into " + x +", " + y);
     }
 
     /**
@@ -209,6 +229,7 @@ public class CommonUtils extends TestBase {
     public static void scrollToBottom() {
         JavascriptExecutor jsExecutor = (JavascriptExecutor) getDriver();
         jsExecutor.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+        logger.infoWithoutReport("Scrolled into the bottom of the page");
     }
 
     /**
@@ -218,6 +239,7 @@ public class CommonUtils extends TestBase {
     public static void scrollToTop() {
         JavascriptExecutor jsExecutor = (JavascriptExecutor) getDriver();
         jsExecutor.executeScript("window.scrollTo(0, 0);");
+        logger.infoWithoutReport("Scrolled into the top of the page");
     }
 
     /**
@@ -228,6 +250,7 @@ public class CommonUtils extends TestBase {
     public static void scrollHorizontally(int x) {
         JavascriptExecutor jsExecutor = (JavascriptExecutor) getDriver();
         jsExecutor.executeScript("window.scrollBy(arguments[0], 0);", x);
+        logger.infoWithoutReport("Scrolled to the page Horizontally " + x);
     }
 
     /**
@@ -239,6 +262,7 @@ public class CommonUtils extends TestBase {
     public static void scrollWithinElement(WebElement element, int y) {
         JavascriptExecutor jsExecutor = (JavascriptExecutor) getDriver();
         jsExecutor.executeScript("arguments[0].scrollTop = arguments[1];", element, y);
+        logger.infoWithoutReport("Scrolled to the page Vertically" + y);
     }
 
     /**
@@ -262,24 +286,31 @@ public class CommonUtils extends TestBase {
     }
 
     public static void scrollIntoView(By element){
+        WaitUtils.waitForVisibility(element);
         JavascriptExecutor jsExecutor = (JavascriptExecutor) getDriver();
-        jsExecutor.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", findElement(element));
+        jsExecutor.executeScript(scrollView, findElement(element));
+        logger.infoWithoutReport("Scrolled into the " + element +" view ");
     }
 
     public static void scrollIntoView(By element, String message){
+        WaitUtils.waitForVisibility(element);
         JavascriptExecutor jsExecutor = (JavascriptExecutor) getDriver();
         jsExecutor.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", findElement(element));
+        logger.infoWithoutReport("Scrolled into the " + message +" view ");
     }
 
     public static void scrollIntoView(WebElement element){
-        JavascriptExecutor jsExecutor = (JavascriptExecutor) getDriver();
         WaitUtils.waitForVisibility(element);
+        JavascriptExecutor jsExecutor = (JavascriptExecutor) getDriver();
         jsExecutor.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
+        logger.infoWithoutReport("Scrolled into the " + element +" view ");
     }
 
     public static void scrollIntoView(WebElement element, String message){
+        WaitUtils.waitForVisibility(element);
         JavascriptExecutor jsExecutor = (JavascriptExecutor) getDriver();
         jsExecutor.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
+        logger.infoWithoutReport("Scrolled into the " + message +" view ");
     }
 
     /**
@@ -294,9 +325,6 @@ public class CommonUtils extends TestBase {
         } catch (NoSuchElementException e) {
             // Element is not found in the DOM
             return false;
-        } catch (Exception e) {
-            // Catch other unexpected exceptions
-            return false;
         }
     }
 
@@ -305,9 +333,6 @@ public class CommonUtils extends TestBase {
             return findElement(element).isDisplayed();
         } catch (NoSuchElementException e) {
             // Element is not found in the DOM
-            return false;
-        } catch (Exception e) {
-            // Catch other unexpected exceptions
             return false;
         }
     }
@@ -334,6 +359,14 @@ public class CommonUtils extends TestBase {
 
     public static boolean isElementSelected(By element){
         return findElement(element).isSelected();
+    }
+
+    public static String getCurrentUrl(){
+        return getDriver().getCurrentUrl();
+    }
+
+    public static String getTitleName(){
+        return getDriver().getTitle();
     }
 
 }

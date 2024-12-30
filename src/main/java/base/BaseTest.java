@@ -3,19 +3,22 @@ package base;
 import org.testng.ITestContext;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import utils.CustomLogger;
 
 public class BaseTest {
 
+    CustomLogger logger = new CustomLogger(BaseTest.class);
+
     // TestNG-specific hooks
-    @BeforeMethod(alwaysRun = true)
+    @BeforeMethod()
     public void testNGSetUp(ITestContext context) {
-        System.out.println("Setting up for TestNG test method.");
+        logger.infoWithoutReport("Setting up for TestNG test method.");
         TestBase.setUp(context);
     }
 
-    @AfterMethod(alwaysRun = true)
+    @AfterMethod()
     public void testNGTearDown(ITestContext context) {
-        System.out.println("Tearing down after TestNG test method.");
+        logger.infoWithoutReport("Tearing down after TestNG test method.");
         TestBase.tearDown(context);
     }
 }

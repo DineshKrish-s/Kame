@@ -2,6 +2,7 @@ package dataProviders;
 
 import annotations.TestDataSource;
 import org.testng.annotations.DataProvider;
+import utils.CustomLogger;
 import utils.FileIO;
 
 import java.io.IOException;
@@ -10,12 +11,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestDataProvider {
+
+    static CustomLogger logger = new CustomLogger(TestDataProvider.class);
+
+    static final String excelLocation = "src/test/resources/testdata/excel/";
+    static final String parallelIndicator = "enableParallelDataProvider";
+    static final String defaultParallelIndicator = "false";
+    static final String defaultErrorMessage = "Test method is missing @TestDataSource annotation";
+    
+    TestDataProvider(){}
+    
     /**
      * DataProvider for single Excel file and sheet.
      */
     @DataProvider(name = "singleExcelDataProvider")
     public static Object[][] singleExcelDataProvider(Method method) throws IOException {
-        boolean isParallel = Boolean.parseBoolean(System.getProperty("enableParallelDataProvider", "false"));
+        boolean isParallel = Boolean.parseBoolean(System.getProperty(parallelIndicator, defaultParallelIndicator));
 
         if (method.isAnnotationPresent(TestDataSource.class)) {
             TestDataSource dataSource = method.getAnnotation(TestDataSource.class);
@@ -27,7 +38,7 @@ public class TestDataProvider {
                 throw new IllegalArgumentException("This DataProvider supports only one file and one sheet.");
             }
 
-            String filePath = "src/test/resources/testdata/excel/" + fileNames[0];
+            String filePath = excelLocation + fileNames[0];
             String sheetName = sheetNames[0];
 
             // Read data from the single file and sheet
@@ -40,13 +51,13 @@ public class TestDataProvider {
 
             // If parallel execution is disabled, return sequential data
             if (!isParallel) {
-                System.out.println("Parallel execution is disabled for singleExcelDataProvider.");
+                logger.infoWithoutReport("Parallel execution is disabled for singleExcelDataProvider.");
                 return makeSequential(data);
             }
 
             return data;
         } else {
-            throw new RuntimeException("Test method is missing @TestDataSource annotation");
+            throw new RuntimeException(defaultErrorMessage);
         }
     }
 
@@ -55,7 +66,7 @@ public class TestDataProvider {
      */
     @DataProvider(name = "multiExcelDataProvider")
     public static Object[][] multiExcelDataProvider(Method method) throws IOException {
-        boolean isParallel = Boolean.parseBoolean(System.getProperty("enableParallelDataProvider", "false"));
+        boolean isParallel = Boolean.parseBoolean(System.getProperty(parallelIndicator, defaultParallelIndicator));
 
         if (method.isAnnotationPresent(TestDataSource.class)) {
             TestDataSource dataSource = method.getAnnotation(TestDataSource.class);
@@ -70,7 +81,7 @@ public class TestDataProvider {
             // Read data from all files
             List<List<TestData>> allFileData = new ArrayList<>();
             for (int i = 0; i < fileNames.length; i++) {
-                String filePath = "src/test/resources/testdata/excel/" + fileNames[i];
+                String filePath = excelLocation + fileNames[i];
                 String sheetName = sheetNames[i];
                 List<TestData> fileData = FileIO.readExcelAsDynamicObject(filePath, sheetName);
                 allFileData.add(fileData);
@@ -94,25 +105,25 @@ public class TestDataProvider {
 
             // If parallel execution is disabled, return sequential data
             if (!isParallel) {
-                System.out.println("Parallel execution is disabled for multiExcelDataProvider.");
+                logger.infoWithoutReport("Parallel execution is disabled for multiExcelDataProvider.");
                 return makeSequential(combinedData);
             }
 
             return combinedData;
         } else {
-            throw new RuntimeException("Test method is missing @TestDataSource annotation");
+            throw new RuntimeException(defaultErrorMessage);
         }
     }
 
     @DataProvider(name = "oneExcelMultiSheetDataProvider")
     public static Object[][] oneExcelMultiSheetDataProvider(Method method) throws IOException {
-        boolean isParallel = Boolean.parseBoolean(System.getProperty("enableParallelDataProvider", "false"));
+        boolean isParallel = Boolean.parseBoolean(System.getProperty(parallelIndicator, defaultParallelIndicator));
 
         if (method.isAnnotationPresent(TestDataSource.class)) {
             TestDataSource dataSource = method.getAnnotation(TestDataSource.class);
 
             String[] sheetNames = dataSource.sheetName();
-            String filePath = "src/test/resources/testdata/excel/" + dataSource.fileName()[0];
+            String filePath = excelLocation + dataSource.fileName()[0];
 
             // Read data from all sheets
             List<List<TestData>> allSheetData = new ArrayList<>();
@@ -139,13 +150,13 @@ public class TestDataProvider {
 
             // If parallel execution is disabled, return sequential data
             if (!isParallel) {
-                System.out.println("Parallel execution is disabled for oneExcelMultiSheetDataProvider.");
+                logger.infoWithoutReport("Parallel execution is disabled for oneExcelMultiSheetDataProvider.");
                 return makeSequential(combinedData);
             }
 
             return combinedData;
         } else {
-            throw new RuntimeException("Test method is missing @TestDataSource annotation");
+            throw new RuntimeException(defaultErrorMessage);
         }
     }
 
