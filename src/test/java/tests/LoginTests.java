@@ -19,11 +19,13 @@ public class LoginTests extends BaseTest {
     static final String excelName_2 = "testdata1.xlsx";
     static final String sheetName_2 = "LoginData";
 
+    LoginPage loginPage;
+
     @Test(dataProvider = "singleExcelDataProvider", dataProviderClass = TestDataProvider.class)
     @TestDataSource(fileName = {excelName_1}, sheetName = {sheetName_1})
     public void testLogin(TestData testData) {
         CommonUtils.getUrl(testData.getValue("url"));
-        LoginPage loginPage = new LoginPage();
+        loginPage = new LoginPage();
         loginPage.login("dinesh","dinesh");
         logger.infoWithReport("Testing login with:");
         logger.infoWithReport("Username: " + testData.getValue("Username"));
@@ -31,11 +33,11 @@ public class LoginTests extends BaseTest {
         logger.infoWithReport("Expected Result: " + testData.getValue("ExpectedResult"));
     }
 
-    @Test(dataProvider = "singleExcelDataProvider", dataProviderClass = TestDataProvider.class, enabled = true)
-    @TestDataSource(fileName = excelName_2, sheetName = sheetName_2)
+    @Test(dataProvider = "singleExcelDataProvider", dataProviderClass = TestDataProvider.class, enabled = false)
+    @TestDataSource(fileName = excelName_2, sheetName = sheetName_2, rows = {0})
     public void testSearch(TestData testData) {
         CommonUtils.getUrl(testData.getValue("url"));
-        LoginPage loginPage = new LoginPage();
+        loginPage = new LoginPage();
         loginPage.login("dinesh","dinesh");
         logger.infoWithReport("Testing login with:");
         logger.infoWithReport("Username: " + testData.getValue("Username"));

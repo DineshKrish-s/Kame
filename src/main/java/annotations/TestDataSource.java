@@ -10,4 +10,6 @@ import java.lang.annotation.RetentionPolicy;
 public @interface TestDataSource {
     String[] fileName(); // Array of file names
     String[] sheetName(); // Array of corresponding sheet names
+    int[] rows() default {}; // Optional: Array of specific rows
+    String rowRange() default ""; // Optional: Range of rows in "start-end" format
 }

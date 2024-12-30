@@ -18,11 +18,11 @@ public class TestDataProvider {
     static final String parallelIndicator = "enableParallelDataProvider";
     static final String defaultParallelIndicator = "false";
     static final String defaultErrorMessage = "Test method is missing @TestDataSource annotation";
-    
-    TestDataProvider(){}
-    
+
+    TestDataProvider() {}
+
     /**
-     * DataProvider for single Excel file and sheet.
+     * DataProvider for single Excel file and sheet with optional rows and range.
      */
     @DataProvider(name = "singleExcelDataProvider")
     public static Object[][] singleExcelDataProvider(Method method) throws IOException {
@@ -33,6 +33,8 @@ public class TestDataProvider {
 
             String[] fileNames = dataSource.fileName();
             String[] sheetNames = dataSource.sheetName();
+            int[] rows = dataSource.rows(); // Optional rows
+            String rowRange = dataSource.rowRange(); // Optional range
 
             if (fileNames.length != 1 || sheetNames.length != 1) {
                 throw new IllegalArgumentException("This DataProvider supports only one file and one sheet.");
@@ -44,8 +46,11 @@ public class TestDataProvider {
             // Read data from the single file and sheet
             List<TestData> dataList = FileIO.readExcelAsDynamicObject(filePath, sheetName);
 
+            // Filter rows and ranges
+            List<TestData> filteredDataList = filterRows(dataList, rows, rowRange);
+
             // Convert List<TestData> to Object[][]
-            Object[][] data = dataList.stream()
+            Object[][] data = filteredDataList.stream()
                     .map(dataItem -> new Object[]{dataItem})
                     .toArray(Object[][]::new);
 
@@ -62,7 +67,7 @@ public class TestDataProvider {
     }
 
     /**
-     * DataProvider for multiple Excel files and sheets.
+     * DataProvider for multiple Excel files and sheets with optional rows and range.
      */
     @DataProvider(name = "multiExcelDataProvider")
     public static Object[][] multiExcelDataProvider(Method method) throws IOException {
@@ -73,6 +78,8 @@ public class TestDataProvider {
 
             String[] fileNames = dataSource.fileName();
             String[] sheetNames = dataSource.sheetName();
+            int[] rows = dataSource.rows(); // Optional rows
+            String rowRange = dataSource.rowRange(); // Optional range
 
             if (fileNames.length != sheetNames.length) {
                 throw new IllegalArgumentException("Number of fileNames and sheetNames must match.");
@@ -87,21 +94,11 @@ public class TestDataProvider {
                 allFileData.add(fileData);
             }
 
-            // Ensure all files have the same number of rows
-            int rowCount = allFileData.get(0).size();
-            for (List<TestData> dataList : allFileData) {
-                if (dataList.size() != rowCount) {
-                    throw new IllegalArgumentException("Excel files have different row counts.");
-                }
-            }
+            // Combine and filter rows based on range or rows parameter
+            List<Object[]> combinedDataList = combineAndFilterRows(allFileData, rows, rowRange);
 
-            // Combine corresponding rows from all files into a single Object[][]
-            Object[][] combinedData = new Object[rowCount][fileNames.length];
-            for (int i = 0; i < rowCount; i++) {
-                for (int j = 0; j < fileNames.length; j++) {
-                    combinedData[i][j] = allFileData.get(j).get(i); // Row i from File j
-                }
-            }
+            // Convert List<Object[]> to Object[][]
+            Object[][] combinedData = combinedDataList.toArray(new Object[0][]);
 
             // If parallel execution is disabled, return sequential data
             if (!isParallel) {
@@ -115,6 +112,9 @@ public class TestDataProvider {
         }
     }
 
+    /**
+     * DataProvider for one Excel file with multiple sheets, with optional rows and range.
+     */
     @DataProvider(name = "oneExcelMultiSheetDataProvider")
     public static Object[][] oneExcelMultiSheetDataProvider(Method method) throws IOException {
         boolean isParallel = Boolean.parseBoolean(System.getProperty(parallelIndicator, defaultParallelIndicator));
@@ -124,6 +124,8 @@ public class TestDataProvider {
 
             String[] sheetNames = dataSource.sheetName();
             String filePath = excelLocation + dataSource.fileName()[0];
+            int[] rows = dataSource.rows(); // Optional rows
+            String rowRange = dataSource.rowRange(); // Optional range
 
             // Read data from all sheets
             List<List<TestData>> allSheetData = new ArrayList<>();
@@ -132,21 +134,11 @@ public class TestDataProvider {
                 allSheetData.add(sheetData);
             }
 
-            // Ensure all sheets have the same number of rows
-            int rowCount = allSheetData.get(0).size();
-            for (List<TestData> dataList : allSheetData) {
-                if (dataList.size() != rowCount) {
-                    throw new IllegalArgumentException("Sheets in the Excel file have different row counts.");
-                }
-            }
+            // Combine and filter rows based on range or rows parameter
+            List<Object[]> combinedDataList = combineAndFilterRows(allSheetData, rows, rowRange);
 
-            // Combine corresponding rows from all sheets into a single Object[][]
-            Object[][] combinedData = new Object[rowCount][sheetNames.length];
-            for (int i = 0; i < rowCount; i++) {
-                for (int j = 0; j < sheetNames.length; j++) {
-                    combinedData[i][j] = allSheetData.get(j).get(i); // Row i from Sheet j
-                }
-            }
+            // Convert List<Object[]> to Object[][]
+            Object[][] combinedData = combinedDataList.toArray(new Object[0][]);
 
             // If parallel execution is disabled, return sequential data
             if (!isParallel) {
@@ -161,10 +153,86 @@ public class TestDataProvider {
     }
 
     /**
+     * Filters rows based on specific indices or a range.
+     */
+    private static List<TestData> filterRows(List<TestData> dataList, int[] rows, String rowRange) {
+        if (rows != null && rows.length > 0) {
+            List<TestData> filteredList = new ArrayList<>();
+            for (int rowIndex : rows) {
+                if (rowIndex >= 0 && rowIndex < dataList.size()) {
+                    filteredList.add(dataList.get(rowIndex));
+                } else {
+                    throw new IndexOutOfBoundsException("Row " + rowIndex + " is out of bounds for the data source.");
+                }
+            }
+            return filteredList;
+        }
+
+        if (!rowRange.isEmpty()) {
+            String[] rangeParts = rowRange.split("-");
+            if (rangeParts.length == 2) {
+                int start = Integer.parseInt(rangeParts[0]);
+                int end = Integer.parseInt(rangeParts[1]);
+                if (start < 0 || end >= dataList.size() || start > end) {
+                    throw new IllegalArgumentException("Invalid row range: " + rowRange);
+                }
+                return dataList.subList(start, end + 1);
+            } else {
+                throw new IllegalArgumentException("Invalid row range format. Expected 'start-end', got: " + rowRange);
+            }
+        }
+
+        return dataList; // Default to all rows
+    }
+
+    /**
+     * Combines and filters rows for multi-file or multi-sheet data.
+     */
+    private static List<Object[]> combineAndFilterRows(List<List<TestData>> allData, int[] rows, String rowRange) {
+        List<Object[]> combinedDataList = new ArrayList<>();
+
+        for (int i = 0; i < allData.get(0).size(); i++) {
+            List<Object> rowData = new ArrayList<>();
+            for (List<TestData> sheetOrFileData : allData) {
+                rowData.add(sheetOrFileData.get(i));
+            }
+            combinedDataList.add(rowData.toArray());
+        }
+
+        // Filter combined data rows based on rows or range
+        if (rows != null && rows.length > 0) {
+            List<Object[]> filteredList = new ArrayList<>();
+            for (int rowIndex : rows) {
+                if (rowIndex >= 0 && rowIndex < combinedDataList.size()) {
+                    filteredList.add(combinedDataList.get(rowIndex));
+                } else {
+                    throw new IndexOutOfBoundsException("Row " + rowIndex + " is out of bounds for the data source.");
+                }
+            }
+            return filteredList;
+        }
+
+        if (!rowRange.isEmpty()) {
+            String[] rangeParts = rowRange.split("-");
+            if (rangeParts.length == 2) {
+                int start = Integer.parseInt(rangeParts[0]);
+                int end = Integer.parseInt(rangeParts[1]);
+                if (start < 0 || end >= combinedDataList.size() || start > end) {
+                    throw new IllegalArgumentException("Invalid row range: " + rowRange);
+                }
+                return combinedDataList.subList(start, end + 1);
+            } else {
+                throw new IllegalArgumentException("Invalid row range format. Expected 'start-end', got: " + rowRange);
+            }
+        }
+
+        return combinedDataList; // Default to all rows
+    }
+
+    /**
      * Converts parallel data to sequential data.
      */
     private static Object[][] makeSequential(Object[][] data) {
-        // Sequential handling logic, if any special adjustment is needed
-        return data;
+        return data; // No-op in this example
     }
 }
