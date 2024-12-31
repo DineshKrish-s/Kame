@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TestDataProvider {
 
@@ -47,7 +48,7 @@ public class TestDataProvider {
             List<TestData> dataList = FileIO.readExcelAsDynamicObject(filePath, sheetName);
 
             // Filter rows and ranges
-            List<TestData> filteredDataList = filterRows(dataList, rows, rowRange);
+            List<TestData> filteredDataList = filterRowsforSingleSheet(dataList, rows, rowRange);
 
             // Convert List<TestData> to Object[][]
             Object[][] data = filteredDataList.stream()
@@ -57,6 +58,56 @@ public class TestDataProvider {
             // If parallel execution is disabled, return sequential data
             if (!isParallel) {
                 logger.infoWithoutReport("Parallel execution is disabled for singleExcelDataProvider.");
+                return makeSequential(data);
+            }
+
+            return data;
+        } else {
+            throw new RuntimeException(defaultErrorMessage);
+        }
+    }
+
+    /**
+     * DataProvider for one Excel file with multiple sheets, with optional rows and range.
+     */
+    @DataProvider(name = "multiSheetDynamicDataProvider")
+    public static Object[][] multiSheetDynamicDataProvider(Method method) throws IOException {
+        boolean isParallel = Boolean.parseBoolean(System.getProperty(parallelIndicator, defaultParallelIndicator));
+
+        if (method.isAnnotationPresent(TestDataSource.class)) {
+            TestDataSource dataSource = method.getAnnotation(TestDataSource.class);
+
+            String[] sheetNames = dataSource.sheetName();
+            String filePath = excelLocation + dataSource.fileName()[0];
+
+            if (sheetNames.length == 0) {
+                throw new IllegalArgumentException("No sheet names provided in the @TestDataSource annotation.");
+            }
+
+            // Read and filter data from all specified sheets
+            List<List<TestData>> allSheetData = new ArrayList<>();
+            for (String sheetName : sheetNames) {
+                List<TestData> sheetData = FileIO.readExcelAsDynamicObject(filePath, sheetName);
+
+                // Filter rows based on rowRange or rows
+                int[] rows = dataSource.rows(); // Specific rows
+                String rowRange = dataSource.rowRange(); // Row range
+                List<TestData> filteredData = filterRows(sheetData, rows, rowRange);
+
+                allSheetData.add(filteredData);
+            }
+
+            // Combine rows from all sheets into a single list
+            List<TestData> combinedData = mergeRowsAcrossSheets(allSheetData);
+
+            // Convert combined data to Object[][] for TestNG
+            Object[][] data = combinedData.stream()
+                    .map(testData -> new Object[]{testData})
+                    .toArray(Object[][]::new);
+
+            // If parallel execution is disabled, return sequential data
+            if (!isParallel) {
+                logger.infoWithoutReport("Parallel execution is disabled for multiSheetDynamicDataProvider.");
                 return makeSequential(data);
             }
 
@@ -81,72 +132,45 @@ public class TestDataProvider {
             int[] rows = dataSource.rows(); // Optional rows
             String rowRange = dataSource.rowRange(); // Optional range
 
-            if (fileNames.length != sheetNames.length) {
-                throw new IllegalArgumentException("Number of fileNames and sheetNames must match.");
+            if (fileNames.length == 0 || sheetNames.length == 0) {
+                throw new IllegalArgumentException("File names and sheet names must be provided in the @TestDataSource annotation.");
             }
 
-            // Read data from all files
+            // Ensure fileNames and sheetNames are valid
+            if (sheetNames.length != fileNames.length) {
+                throw new IllegalArgumentException("The number of file names and sheet names must match.");
+            }
+
+            // Read data from all specified files and sheets
             List<List<TestData>> allFileData = new ArrayList<>();
             for (int i = 0; i < fileNames.length; i++) {
                 String filePath = excelLocation + fileNames[i];
                 String sheetName = sheetNames[i];
-                List<TestData> fileData = FileIO.readExcelAsDynamicObject(filePath, sheetName);
-                allFileData.add(fileData);
+
+                // Read data from the specified file and sheet
+                List<TestData> sheetData = FileIO.readExcelAsDynamicObject(filePath, sheetName);
+
+                // Filter rows based on the provided rows or rowRange
+                List<TestData> filteredData = filterRows(sheetData, rows, rowRange);
+
+                allFileData.add(filteredData);
             }
 
-            // Combine and filter rows based on range or rows parameter
-            List<Object[]> combinedDataList = combineAndFilterRows(allFileData, rows, rowRange);
+            // Combine rows across all files and sheets
+            List<TestData> combinedData = mergeRowsAcrossSheets(allFileData);
 
-            // Convert List<Object[]> to Object[][]
-            Object[][] combinedData = combinedDataList.toArray(new Object[0][]);
+            // Convert combined data to Object[][] for TestNG
+            Object[][] data = combinedData.stream()
+                    .map(testData -> new Object[]{testData})
+                    .toArray(Object[][]::new);
 
             // If parallel execution is disabled, return sequential data
             if (!isParallel) {
                 logger.infoWithoutReport("Parallel execution is disabled for multiExcelDataProvider.");
-                return makeSequential(combinedData);
+                return makeSequential(data);
             }
 
-            return combinedData;
-        } else {
-            throw new RuntimeException(defaultErrorMessage);
-        }
-    }
-
-    /**
-     * DataProvider for one Excel file with multiple sheets, with optional rows and range.
-     */
-    @DataProvider(name = "oneExcelMultiSheetDataProvider")
-    public static Object[][] oneExcelMultiSheetDataProvider(Method method) throws IOException {
-        boolean isParallel = Boolean.parseBoolean(System.getProperty(parallelIndicator, defaultParallelIndicator));
-
-        if (method.isAnnotationPresent(TestDataSource.class)) {
-            TestDataSource dataSource = method.getAnnotation(TestDataSource.class);
-
-            String[] sheetNames = dataSource.sheetName();
-            String filePath = excelLocation + dataSource.fileName()[0];
-            int[] rows = dataSource.rows(); // Optional rows
-            String rowRange = dataSource.rowRange(); // Optional range
-
-            // Read data from all sheets
-            List<List<TestData>> allSheetData = new ArrayList<>();
-            for (String sheetName : sheetNames) {
-                List<TestData> sheetData = FileIO.readExcelAsDynamicObject(filePath, sheetName);
-                allSheetData.add(sheetData);
-            }
-
-            // Combine and filter rows based on range or rows parameter
-            List<Object[]> combinedDataList = combineAndFilterRows(allSheetData, rows, rowRange);
-
-            // Convert List<Object[]> to Object[][]
-            Object[][] combinedData = combinedDataList.toArray(new Object[0][]);
-
-            // If parallel execution is disabled, return sequential data
-            if (!isParallel) {
-                logger.infoWithoutReport("Parallel execution is disabled for oneExcelMultiSheetDataProvider.");
-                return makeSequential(combinedData);
-            }
-
-            return combinedData;
+            return data;
         } else {
             throw new RuntimeException(defaultErrorMessage);
         }
@@ -155,7 +179,7 @@ public class TestDataProvider {
     /**
      * Filters rows based on specific indices or a range.
      */
-    private static List<TestData> filterRows(List<TestData> dataList, int[] rows, String rowRange) {
+    private static List<TestData> filterRowsforSingleSheet(List<TestData> dataList, int[] rows, String rowRange) {
         if (rows != null && rows.length > 0) {
             List<TestData> filteredList = new ArrayList<>();
             for (int rowIndex : rows) {
@@ -183,6 +207,53 @@ public class TestDataProvider {
         }
 
         return dataList; // Default to all rows
+    }
+
+    private static List<TestData> filterRows(List<TestData> sheetData, int[] rows, String rowRange) {
+        List<TestData> filteredData = new ArrayList<>();
+
+        if (rows != null && rows.length > 0) {
+            // Filter by specific row indices
+            for (int row : rows) {
+                if (row >= 0 && row < sheetData.size()) {
+                    filteredData.add(sheetData.get(row));
+                }
+            }
+        } else if (rowRange != null && !rowRange.isEmpty()) {
+            // Filter by row range (e.g., "0-2")
+            String[] range = rowRange.split("-");
+            if (range.length == 2) {
+                int start = Integer.parseInt(range[0]);
+                int end = Integer.parseInt(range[1]);
+
+                for (int i = start; i <= end && i < sheetData.size(); i++) {
+                    filteredData.add(sheetData.get(i));
+                }
+            }
+        } else {
+            // No filtering, return all rows
+            filteredData.addAll(sheetData);
+        }
+
+        return filteredData;
+    }
+
+    private static List<TestData> mergeRowsAcrossSheets(List<List<TestData>> allSheetData) {
+        List<TestData> mergedData = new ArrayList<>();
+
+        // Assume all sheets have the same number of rows
+        int rowCount = allSheetData.get(0).size();
+
+        for (int i = 0; i < rowCount; i++) {
+            TestData mergedRow = new TestData();
+            for (List<TestData> sheetData : allSheetData) {
+                TestData rowData = sheetData.get(i);
+                mergedRow.getAllData().putAll(rowData.getAllData());
+            }
+            mergedData.add(mergedRow);
+        }
+
+        return mergedData;
     }
 
     /**

@@ -18,29 +18,29 @@ public class CommonUtils extends TestBase {
 
     CommonUtils(){}
 
-    public String getFirstName() {
+    public static String getFirstName() {
         Faker faker = new Faker();
         return faker.name().firstName();
     }
 
-    public String getLastName() {
+    public static String getLastName() {
         Faker faker = new Faker();
         return faker.name().lastName();
     }
 
-    public String getDateOfBirth() {
+    public static String getDateOfBirth() {
         Faker faker = new Faker();
         return faker.date().birthday().toString();
     }
 
     // Generate a random number with a specified number of digits
-    public long getRandomNumber(int numberOfDigits) {
+    public static long getRandomNumber(int numberOfDigits) {
         Faker faker = new Faker();
         return faker.number().randomNumber(numberOfDigits, true);
     }
 
     // Generate a random digit string of specified length
-    public String getRandomDigit(int length) {
+    public static String getRandomDigit(int length) {
         Faker faker = new Faker();
         StringBuilder digits = new StringBuilder();
         for (int i = 0; i < length; i++) {
@@ -49,7 +49,7 @@ public class CommonUtils extends TestBase {
         return digits.toString();
     }
 
-    public String getRandomEmail(){
+    public static String getRandomEmail(){
         Faker faker = new Faker();
         return faker.internet().emailAddress();
     }

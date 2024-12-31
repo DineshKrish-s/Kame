@@ -266,6 +266,7 @@ public class Assertion {
         try{
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertEquals(actual, expected);
+            softAssert.assertAll();
             logger.pass(actualText + actual + expectedText + expected );
         } catch (AssertionError e) {
             logger.logErrorWithReport(actualText + actual + expectedText + expected );
@@ -276,6 +277,7 @@ public class Assertion {
         try{
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertEquals(actual, expected, message);
+            softAssert.assertAll();
             logger.pass(actualText + actual + expectedText + expected );
         } catch (AssertionError e) {
             logger.logErrorWithReport(actualText + actual + expectedText + expected );
@@ -286,6 +288,7 @@ public class Assertion {
         try{
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertEquals(actual, expected);
+            softAssert.assertAll();
             logger.pass(actualText + actual + expectedText + expected );
         } catch (AssertionError e) {
             logger.logErrorWithReport(actualText + actual + expectedText + expected );
@@ -296,6 +299,7 @@ public class Assertion {
         try{
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertEquals(actual, expected, message);
+            softAssert.assertAll();
             logger.pass(actualText + actual + expectedText + expected );
         } catch (AssertionError e) {
             logger.logErrorWithReport(actualText + actual + expectedText + expected );
@@ -306,6 +310,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(condition);
+            softAssert.assertAll();
             logger.pass(actualText + condition + expectedText + !condition );
         } catch (AssertionError e) {
             logger.logErrorWithReport(actualText + condition + expectedText + !condition );
@@ -316,6 +321,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(condition, message);
+            softAssert.assertAll();
             logger.pass(actualText + condition + expectedText + !condition );
         } catch (AssertionError e) {
             logger.logErrorWithReport(actualText + condition + expectedText + !condition );
@@ -326,6 +332,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertFalse(condition);
+            softAssert.assertAll();
             logger.pass(actualText + condition + expectedText + !condition );
         } catch (AssertionError e) {
             logger.logErrorWithReport(actualText + condition + expectedText + !condition );
@@ -336,6 +343,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertFalse(condition, message);
+            softAssert.assertAll();
             logger.pass(actualText + condition + expectedText + !condition );
         } catch (AssertionError e) {
             logger.logErrorWithReport(actualText + condition + expectedText + !condition );
@@ -346,6 +354,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(CommonUtils.isElementPresent(element));
+            softAssert.assertAll();
             logger.pass(element + isPresent);
         } catch (AssertionError e) {
             logger.logErrorWithReport(element + isNotPresent);
@@ -356,6 +365,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(CommonUtils.isElementPresent(element),message);
+            softAssert.assertAll();
             logger.pass(element + isPresent);
         } catch (AssertionError e) {
             logger.logErrorWithReport(element + isNotPresent);
@@ -366,6 +376,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(CommonUtils.isElementPresent(element));
+            softAssert.assertAll();
             logger.pass(element + isPresent);
         } catch (AssertionError e) {
             logger.logErrorWithReport(element + isNotPresent);
@@ -376,6 +387,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(CommonUtils.isElementPresent(element), message);
+            softAssert.assertAll();
             logger.pass(element + isPresent);
         } catch (AssertionError e) {
             logger.logErrorWithReport(element + isNotPresent);
@@ -386,6 +398,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(CommonUtils.isElementVisible(element));
+            softAssert.assertAll();
             logger.pass(element + isDisplayed);
         } catch (AssertionError e) {
             logger.logErrorWithReport(element + isNotDisplayed);
@@ -396,6 +409,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(CommonUtils.isElementVisible(element), message);
+            softAssert.assertAll();
             logger.pass(element + isDisplayed);
         } catch (AssertionError e) {
             logger.logErrorWithReport(element + isNotDisplayed);
@@ -406,6 +420,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(CommonUtils.isElementVisible(element));
+            softAssert.assertAll();
             logger.pass(element + isDisplayed);
         } catch (AssertionError e) {
             logger.logErrorWithReport(element + isNotDisplayed);
@@ -416,6 +431,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(CommonUtils.isElementVisible(element), message);
+            softAssert.assertAll();
             logger.pass(element + isDisplayed);
         } catch (AssertionError e) {
             logger.logErrorWithReport(element + isNotDisplayed);
@@ -426,6 +442,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(CommonUtils.isElementEnabled(element));
+            softAssert.assertAll();
             logger.pass(element + isEnabled);
         } catch (AssertionError e) {
             logger.logErrorWithReport(element + isNotEnabled);
@@ -436,6 +453,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(CommonUtils.isElementEnabled(element), message);
+            softAssert.assertAll();
             logger.pass(element + isEnabled);
         } catch (AssertionError e) {
             logger.logErrorWithReport(element + isNotEnabled);
@@ -446,6 +464,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(CommonUtils.isElementEnabled(element));
+            softAssert.assertAll();
             logger.pass(element + isEnabled);
         } catch (AssertionError e) {
             logger.logErrorWithReport(element + isNotEnabled);
@@ -456,6 +475,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(CommonUtils.isElementEnabled(element), message);
+            softAssert.assertAll();
             logger.pass(element + isEnabled);
         } catch (AssertionError e) {
             logger.logErrorWithReport(element + isNotEnabled);
@@ -466,6 +486,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(CommonUtils.isElementSelected(element));
+            softAssert.assertAll();
             logger.pass(element + isSelected);
         } catch (AssertionError e) {
             logger.logErrorWithReport(element + isNotSelected);
@@ -476,6 +497,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(CommonUtils.isElementSelected(element), message);
+            softAssert.assertAll();
             logger.pass(element + isSelected);
         } catch (AssertionError e) {
             logger.logErrorWithReport(element + isNotSelected);
@@ -486,6 +508,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(CommonUtils.isElementSelected(element));
+            softAssert.assertAll();
             logger.pass(element + isSelected);
         } catch (AssertionError e) {
             logger.logErrorWithReport(element + isNotSelected);
@@ -496,6 +519,7 @@ public class Assertion {
         try {
             SoftAssert softAssert = new SoftAssert();
             softAssert.assertTrue(CommonUtils.isElementSelected(element), message);
+            softAssert.assertAll();
             logger.pass(element + isSelected);
         } catch (AssertionError e) {
             logger.logErrorWithReport(element + isNotSelected);

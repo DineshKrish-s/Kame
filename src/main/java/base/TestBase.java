@@ -1,50 +1,36 @@
 package base;
 
+import managers.ConfigLoader;
+import managers.DriverManager;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.ITestContext;
+import utils.CommonUtils;
 import utils.CustomLogger;
 
+import java.io.IOException;
 import java.net.URL;
-import java.util.Properties;
 
 public class TestBase {
 
-    private static Properties config;
-    private static ThreadLocal<WebDriver> threadLocalDriver = new ThreadLocal<>();
+    protected static ThreadLocal<WebDriver> threadLocalDriver = new ThreadLocal<>();
 
     static CustomLogger logger = new CustomLogger(TestBase.class);
-    
-    // Load configuration
-    static {
-        try {
-            config = new Properties();
-            logger.infoWithoutReport("Attempting to load 'config/config.properties'...");
 
-            // Specify the correct path to the properties file within test/resources/config
-            var resource = Thread.currentThread().getContextClassLoader().getResource("config/config.properties");
-            if (resource == null) {
-                throw new RuntimeException("'config/config.properties' not found in classpath.");
-            }
-
-            logger.infoWithoutReport("Found config.properties at: " + resource);
-            config.load(resource.openStream());
-            logger.infoWithoutReport("Configuration file loaded successfully.");
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to load configuration file. Ensure 'config/config.properties' is in src/test/resources/config.", e);
-        }
-    }
+    private static final DriverManager driverManager = new DriverManager();
+    private static final ConfigLoader configLoader = new ConfigLoader();
 
     // Set up WebDriver for TestNG or Cucumber
-    public static void setUp(ITestContext context) {
+    void setUp(ITestContext context) throws IOException {
+
+        configLoader.loadConfig();
         if (threadLocalDriver.get() == null) {
             try {
 
-                String browser = System.getProperty("browser", config.getProperty("browser", "chrome"));
-                String gridUrl = System.getProperty("grid.url", config.getProperty("grid.url", ""));
-                String gridIndicator = System.getProperty("grid.indicator", config.getProperty("grid.indicator", "false"));
+                String browser = System.getProperty("browser", System.getProperty("browser", "chrome"));
+                String gridUrl = System.getProperty("nodeURL", System.getProperty("nodeURL", ""));
+                String gridIndicator = System.getProperty("nodeIndicator", System.getProperty("nodeIndicator", "false"));
 
                 WebDriver driver;
 
@@ -54,7 +40,7 @@ public class TestBase {
                     driver = new RemoteWebDriver(new URL(gridUrl), capabilities);
                 } else {
                     logger.infoWithoutReport("Grid is disabled or Grid URL is not defined. Falling back to local WebDriver.");
-                    driver = createLocalDriver(browser);
+                    driver = driverManager.createLocalDriver(browser);
                 }
 
                 threadLocalDriver.set(driver);
@@ -65,73 +51,20 @@ public class TestBase {
 
                 logger.infoWithoutReport("WebDriver initialized for: " + (context != null ? context.getName() : "Cucumber scenario"));
 
+                CommonUtils.getUrl(System.getProperty("url"));
+
             } catch (Exception e) {
                 throw new RuntimeException("Failed to initialize WebDriver.", e);
             }
         }
     }
 
-    private static WebDriver createLocalDriver(String browser) {
-        switch (browser.toLowerCase()) {
-            case "chrome":
-                return createChromeDriver();
-            case "firefox":
-                return createFirefoxDriver();
-            default:
-                throw new IllegalArgumentException("Unsupported browser: " + browser);
-        }
-    }
-
-    // Helper to create ChromeDriver with options
-    private static WebDriver createChromeDriver() {
-        logger.infoWithoutReport("Initializing ChromeDriver...");
-
-        // Chrome Options
-        ChromeOptions chromeOptions = new ChromeOptions();
-        chromeOptions.addArguments("--start-maximized"); // Start browser maximized
-        chromeOptions.addArguments("--disable-notifications"); // Disable notifications
-        chromeOptions.addArguments("--disable-extensions"); // Disable extensions
-        chromeOptions.addArguments("--remote-allow-origins=*"); // Allow cross-origin if needed
-        chromeOptions.addArguments("--incognito"); // Launch browser in incognito mode
-        chromeOptions.setAcceptInsecureCerts(true); // Accept insecure certificates
-
-        // Set additional desired capabilities if required
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
-
-        return new org.openqa.selenium.chrome.ChromeDriver(chromeOptions);
-    }
-
-    // Helper to create FirefoxDriver with options
-    private static WebDriver createFirefoxDriver() {
-        logger.infoWithoutReport("Initializing FirefoxDriver...");
-
-        // Firefox Options
-        org.openqa.selenium.firefox.FirefoxOptions firefoxOptions = new org.openqa.selenium.firefox.FirefoxOptions();
-        firefoxOptions.addArguments("--start-maximized"); // Start browser maximized
-        firefoxOptions.addArguments("--disable-notifications"); // Disable notifications
-        firefoxOptions.setAcceptInsecureCerts(true); // Accept insecure certificates
-
-        // Set additional desired capabilities if required
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability("moz:firefoxOptions", firefoxOptions);
-
-        return new org.openqa.selenium.firefox.FirefoxDriver(firefoxOptions);
-    }
-
-
-    // Overloaded setUp method for Cucumber
-    public static void setUp() {
+    public void setUp() throws IOException {
         setUp(null);
     }
 
-    // Get WebDriver instance
-    public static WebDriver getDriver() {
-        return threadLocalDriver.get();
-    }
-
     // Tear down WebDriver for TestNG or Cucumber
-    public static void tearDown(ITestContext context) {
+    public void tearDown(ITestContext context) {
         WebDriver driver = threadLocalDriver.get();
         if (driver != null) {
             driver.quit();
@@ -144,9 +77,35 @@ public class TestBase {
     }
 
     // Overloaded tearDown method for Cucumber
-    public static void tearDown() {
+    public void tearDown() {
         tearDown(null);
     }
+
+    /**
+     * Retrieves the current WebDriver instance for the current thread.
+     *
+     * @return The WebDriver instance.
+     */
+    public static WebDriver getDriver() {
+        return threadLocalDriver.get();
+    }
+
+    /**
+     * Sets the WebDriver instance for the current thread.
+     *
+     * @param driver The WebDriver instance to set.
+     */
+    protected static void setDriver(WebDriver driver) {
+        threadLocalDriver.set(driver);
+    }
+
+    /**
+     * Removes the WebDriver instance for the current thread.
+     */
+    protected static void removeDriver() {
+        threadLocalDriver.remove();
+    }
+
 
 //
 //    public static void setUp(ITestContext context) {

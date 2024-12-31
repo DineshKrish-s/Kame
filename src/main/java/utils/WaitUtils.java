@@ -17,7 +17,7 @@ public class WaitUtils extends TestBase {
     static CustomLogger logger = new CustomLogger(WaitUtils.class);
 
     public WaitUtils() {
-        wait = new WebDriverWait(getDriver(), Duration.ofSeconds(30));
+        wait = new WebDriverWait(getDriver(), Duration.ofSeconds(Integer.parseInt(System.getProperty("waitTime"))));
     }
 
     public static void implicitWait(int sec){

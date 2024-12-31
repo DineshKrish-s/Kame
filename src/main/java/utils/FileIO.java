@@ -231,6 +231,54 @@ public class FileIO {
         return dataList;
     }
 
+    public static Map<String, List<TestData>> readSpecifiedSheetsAsDynamicObjects(String filePath, String[] sheetNames) throws IOException {
+        Map<String, List<TestData>> sheetDataMap = new LinkedHashMap<>();
+
+        try (FileInputStream fis = new FileInputStream(new File(filePath))) {
+            Workbook workbook = WorkbookFactory.create(fis);
+
+            // Iterate over the provided sheet names
+            for (String sheetName : sheetNames) {
+                Sheet sheet = workbook.getSheet(sheetName);
+
+                if (sheet == null) {
+                    throw new IllegalArgumentException("Sheet '" + sheetName + "' not found in the workbook.");
+                }
+
+                List<TestData> dataList = new ArrayList<>();
+                Iterator<Row> rowIterator = sheet.iterator();
+
+                if (!rowIterator.hasNext()) continue; // Skip empty sheets
+
+                Row headerRow = rowIterator.next(); // Header row
+
+                // Extract headers
+                List<String> headers = new ArrayList<>();
+                for (Cell cell : headerRow) {
+                    headers.add(cell.getStringCellValue());
+                }
+
+                // Process each row
+                while (rowIterator.hasNext()) {
+                    Row row = rowIterator.next();
+                    TestData rowData = new TestData();
+
+                    for (int j = 0; j < headers.size(); j++) {
+                        Cell cell = row.getCell(j);
+                        rowData.put(headers.get(j), getCellValueAsString(cell));
+                    }
+
+                    dataList.add(rowData);
+                }
+
+                // Add the sheet's data to the map
+                sheetDataMap.put(sheetName, dataList);
+            }
+        }
+
+        return sheetDataMap;
+    }
+
     /**
      * Reads a JSON file and maps it to a Java object of the specified type.
      *
